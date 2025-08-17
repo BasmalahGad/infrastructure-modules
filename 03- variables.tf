@@ -8,10 +8,6 @@ variable "vpc_cidr" {
   type        = string
 }
 
-variable "private_subnets_cidrs" {
-  description = "List of CIDR blocks for private subnets"
-  type        = list(string)
-}
 
 variable "public_subnets_cidrs" {
   description = "List of CIDR blocks for public subnets"
@@ -67,13 +63,14 @@ variable "node_groups" {
 
   default = {
     default = {
-      instance_types = ["t3.micro"],
+      instance_types = ["t3.small"],
       capacity_type  = "ON_DEMAND",
       scaling_config = {
         desired_size = 2,
-        max_size     = 4,
+        max_size     = 3,
         min_size     = 1
       }
     }
   }
 }
+

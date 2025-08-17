@@ -8,7 +8,8 @@ resource "aws_eks_cluster" "main" {
   }
 
   vpc_config {
-    subnet_ids = var.subnet_ids
+    subnet_ids         = var.subnet_ids
+    security_group_ids = [var.security_group_id]
   }
 
   depends_on = [
@@ -24,7 +25,6 @@ resource "aws_iam_role" "cluster" {
       {
         Action = [
           "sts:AssumeRole",
-          "sts:TagSession"
         ]
         Effect = "Allow"
         Principal = {
@@ -35,9 +35,12 @@ resource "aws_iam_role" "cluster" {
   })
 }
 
-
 resource "aws_iam_role_policy_attachment" "cluster_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
   role       = aws_iam_role.cluster.name
 }
 
+resource "aws_iam_role_policy_attachment" "service_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
+  role       = aws_iam_role.cluster.name
+}

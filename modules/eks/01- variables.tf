@@ -30,3 +30,8 @@ variable "node_groups" {
     })
   }))
 }
+
+variable "security_group_id" {
+  description = "Security group IDs"
+  type        = string
+}

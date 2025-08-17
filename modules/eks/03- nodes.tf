@@ -17,8 +17,9 @@ resource "aws_iam_role" "node" {
 resource "aws_iam_role_policy_attachment" "node_policy" {
   for_each = toset([
     "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy",
-    "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPullOnly",
-    "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+    "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly",
+    "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy",
+    "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
   ])
 
   policy_arn = each.value
@@ -32,6 +33,8 @@ resource "aws_eks_node_group" "main" {
   node_group_name = each.key
   node_role_arn   = aws_iam_role.node.arn
   subnet_ids      = var.subnet_ids
+  instance_types = each.value.instance_types
+  capacity_type  = each.value.capacity_type
 
   scaling_config {
     desired_size = each.value.scaling_config.desired_size
@@ -39,11 +42,8 @@ resource "aws_eks_node_group" "main" {
     min_size     = each.value.scaling_config.min_size
   }
 
-  update_config {
-    max_unavailable = 1
+  remote_access {
+    ec2_ssh_key               = "solar-system-key"
+    source_security_group_ids = [var.security_group_id]
   }
-
-  depends_on = [
-    aws_iam_role_policy_attachment.node_policy
-  ]
 }
